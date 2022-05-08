@@ -1,0 +1,10 @@
+name: ttpSolver
+
+dependencies:
+  - python=3.6
+  - pip=21.0.1
+  - pip:
+    - joblib==1.0.1
+    - simpy==4.0.1
+    - jmetalpy==1.5.5
+    - openpyxl==3.0.7
