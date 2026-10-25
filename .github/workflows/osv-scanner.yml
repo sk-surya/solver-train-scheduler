@@ -1,0 +1,38 @@
+# Deploy to .github/workflows/osv-scanner.yml in each repository.
+# Public repos: GitHub code-scanning alerts + run artifacts.
+# Private repos: Actions run artifacts (no paid GitHub Code Security needed).
+name: OSV-Scanner
+
+on:
+  pull_request:
+  schedule:
+    - cron: "17 12 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+
+jobs:
+  scan-pr:
+    if: github.event_name == 'pull_request'
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@ef6dfdf01765802d5a8dbc3c39852a6128b00af0 # v2.7.0
+    with:
+      scan-args: |-
+        --include-git-root
+        -r
+        ./
+      upload-sarif: ${{ !github.event.repository.private }}
+      fail-on-vuln: true
+
+  scan-full:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@ef6dfdf01765802d5a8dbc3c39852a6128b00af0 # v2.7.0
+    with:
+      scan-args: |-
+        --include-git-root
+        -r
+        ./
+      upload-sarif: ${{ !github.event.repository.private }}
+      fail-on-vuln: false
